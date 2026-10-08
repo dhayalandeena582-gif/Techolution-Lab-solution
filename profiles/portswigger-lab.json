@@ -1,0 +1,21 @@
+{
+  "name": "portswigger-ai-agent-lab",
+  "login": {
+    "path": "/login",
+    "username_field": "username",
+    "password_field": "password"
+  },
+  "account_path": "/my-account",
+  "actions": {
+    "delete_account": "/my-account/delete",
+    "change_email": "/my-account/change-email"
+  },
+  "agent": {
+    "start": "/api/audit/start",
+    "status": "/api/audit/status",
+    "report": "/scanresults"
+  },
+  "success_marker": "is-solved",
+  "sink_keywords": ["comment", "review", "feedback", "message"],
+  "content_patterns": ["/post\\?postId=(\\d+)", "/product\\?productId=(\\d+)"]
+}
