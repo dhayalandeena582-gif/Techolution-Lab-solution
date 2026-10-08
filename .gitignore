@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Tool output / local scratch
+*.log
+scanresults*.html
+captures/
+scratch/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
