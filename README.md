@@ -8,9 +8,7 @@ by instructions planted in that content.
 > or have written permission to test. `--mode recon` is read-only and safe.
 
 ```
-attacker writes a comment  ->  AI agent reads the page  ->  agent is logged in
-                                                            as someone else
-                           ->  agent performs a privileged action
+attacker writes a comment  ->  AI agent reads the page  ->  agent is logged in as someone else ->  agent performs a privileged action
 ```
 
 Two weaknesses have to line up, and the tool reports on both:
