@@ -119,11 +119,17 @@ clever payload.
 | `PAYLOADS` | the library: `name`, `objective`, `desc`, `body(ctx)` |
 | `new_context()` | what payload bodies render against: `base`, `target_user`, `canary`, `canary_path`, `profile` |
 | `ORACLES` | objective → success test |
+| `reached_content()` | did the agent actually fetch the page we planted on — the delivered/undelivered split |
 | `Target.probe()` | read-only recon, delegating to `_agent_surface`, `_sinks`, `_api_surface`, `_account_surface` |
 | `Target.plant()` / `start_scan()` / `wait_scan()` / `results()` | the attack steps |
 | `run_attempt()` | one plant → scan → judge cycle, returns an `Attempt` |
-| `hunt()` | retry loop, returns an `Outcome` |
-| `FIXES` / `build_report()` / `render_markdown()` | the developer report |
+| `select_payloads()` | resolves `--mode`/`--objective`/`--payload` into a plan, in one place |
+| `show_attempt()` | the one stable line printed per attempt |
+| `verdict_of()` | reduces attempts to VULNERABLE / RESISTED / INCONCLUSIVE / ERROR plus the exit code |
+| `hunt()` | runs the flat schedule, returns an `Outcome` |
+| `FIXES` / `INEFFECTIVE` / `REFERENCES` | remediation content, shared by `--report` and `--fix-guide` |
+| `assess()` | severity and rationale |
+| `build_report()` / `render_markdown()` / `write_reports()` | the developer report |
 | `main()` | wiring only |
 
 ### Adding a payload
@@ -150,7 +156,7 @@ entry in `ORACLES`.
   re-run verified idempotent.
 - Negative path: against a *hardened* mock agent that ignores injected
   instructions, all 13 payloads report no effect, exit 1, report says
-  "NOT DEMONSTRATED" — no false positives.
+  `RESISTED` (exit 1) — no false positives.
 - Parsers replayed against the real application's captured HTML (CSRF
   extraction, sink discovery, page enumeration, tool-call parsing on two real
   scan reports): 16/16, including the case that matters — a real report

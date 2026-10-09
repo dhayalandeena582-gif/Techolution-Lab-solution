@@ -12,20 +12,43 @@ Two weaknesses have to line up, and both are reported:
   1. indirect prompt injection - attacker text reaches the model's context
   2. excessive agency          - the agent holds a session that can act
 
-Three modes, escalating. Start at the top.
+Three modes, escalating. Start at the top and stop when you have an answer.
 
     ./aiscan.py URL                    # recon   - read-only, no side effects
     ./aiscan.py URL --mode canary      # canary  - proves injection, harmlessly
     ./aiscan.py URL --mode exploit     # exploit - performs the real action
 
-Everything else is optional tuning:
+Verdicts and exit codes:
+
+    VULNERABLE    0   the agent performed the injected action (reports n/N)
+    RESISTED      1   the agent READ the planted content and refused
+    INCONCLUSIVE  3   the agent never read it - nothing was tested
+    ERROR         2   could not plant the payload or trigger the agent
+
+RESISTED and INCONCLUSIVE are deliberately distinct: only the first says
+anything about the agent's behaviour. A run of undelivered attempts is a
+setup problem, never a pass.
+
+Reporting:
+
+    --report FILE      developer report (Markdown) with prioritised fixes
+    --json FILE        machine-readable results, for CI
+    --fix-guide        print the remediation guidance and exit
+
+Targeting a different app:
+
+    --profile FILE     JSON of your app's endpoints (see profiles/)
+
+Tuning:
 
     --user/--password  creds to log in with        (default wiener:peter)
     --target-user      identity the agent holds    (default carlos)
-    --objective        exploit goal: delete_account | change_email | exfil | all
+    --objective        delete_account | change_email | exfil | all
     --payload NAME     run one payload (see --list-payloads)
     --post N           plant into a specific page
-    --rounds N         retries, because LLMs are nondeterministic
+    --rounds N         attempts per payload; the verdict is a rate over them
+    --seed N           fix the canary RNG for byte-identical reruns
+    -v                 per-request detail instead of one line per attempt
     --proxy URL        route through Burp
 
 Authorized use only: your own applications and training labs.
@@ -73,6 +96,8 @@ def warn(m):  log("!", m, "yel")
 def bad(m):   log("-", m, "red")
 def hit(m):   print(f"{C['red']}{C['b']}[VULN]{C['r']} {m}", flush=True)
 
+
+TOOL_VERSION = "2.2"
 
 VERBOSE = False
 
@@ -544,7 +569,7 @@ class Target:
         self.sink = None          # discovered by probe()
         self.s = requests.Session()
         self.s.verify = False
-        self.s.headers["User-Agent"] = "aiscan/2.0 (authorized testing)"
+        self.s.headers["User-Agent"] = f"aiscan/{TOOL_VERSION} (authorized testing)"
         if proxy:
             self.s.proxies = {"http": proxy, "https": proxy}
 
@@ -885,8 +910,6 @@ def show_surface(sf):
 # docstring, so `--fix-guide` can print it and the report can embed it.
 # Ordered by how much risk each item removes.
 # ---------------------------------------------------------------------------
-
-TOOL_VERSION = "2.1"
 
 FIXES = [
     dict(
