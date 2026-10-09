@@ -7,7 +7,11 @@ venv/
 env/
 
 # Tool output / local scratch
+# Scan reports can contain your app's internals - keep them out of git.
 *.log
+/report*.md
+/results*.json
+/aiscan-report*
 scanresults*.html
 captures/
 scratch/
